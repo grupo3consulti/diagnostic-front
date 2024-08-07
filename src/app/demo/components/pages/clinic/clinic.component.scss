@@ -1,0 +1,13 @@
+:host ::ng-deep .p-menubar-root-list {
+    flex-wrap: wrap;
+}
+/* clinic.component.scss */
+.appointment-active {
+    background-color: #d4edda; /* Color verde claro para citas activas */
+    color: #155724; /* Color del texto en verde oscuro */
+}
+
+.appointment-occupied {
+    background-color: #f8d7da; /* Color rojo claro para citas ocupadas */
+    color: #721c24; /* Color del texto en rojo oscuro */
+}
