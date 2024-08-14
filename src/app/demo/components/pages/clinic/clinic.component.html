@@ -6,4 +6,34 @@
         </div>
     </div>
     <p-toast key="tst"></p-toast>
+
+    <p-dialog header="Crear Cita" [(visible)]="display" [modal]="true" [closable]="true" [style]="{width: '50vw'}">
+        <div class="p-fluid">
+            <div class="card p-fluid">
+                <div class="field">
+                    <label for="fecha_hora">Fecha</label>
+                    <p-calendar id="fecha_hora" [(ngModel)]="appointment.fecha_hora" [showTime]="true" [hourFormat]="24"></p-calendar>
+                </div>
+                <div class="field">
+                    <label for="estado">Usuario</label>
+                    <p-dropdown
+                        id="usuario"
+                        [(ngModel)]="appointment.usuario_id"
+                        [options]="users"
+                        optionValue="id_usuario"
+                        placeholder="Seleccione un paciente"
+                        optionLabel="nombre">
+                    </p-dropdown>
+                </div>
+                <div class="field">
+                    <label for="estado">Estado</label>
+                    <p-dropdown id="estado" [(ngModel)]="appointment.estado" [options]="estadoOptions" optionValue="value" optionLabel="label"></p-dropdown>
+                </div>
+
+            </div>
+            <p-footer class="p-field">
+                <button type="button" pButton label="Crear" icon="pi pi-check" (click)="submitAppointment()"></button>
+            </p-footer>
+        </div>
+    </p-dialog>
 </div>
