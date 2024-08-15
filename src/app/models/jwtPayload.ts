@@ -1,5 +1,7 @@
 export interface JwtPayloadUser {
-    id: number;
-    email: string;
-    rol: string;
+	id: number;
+	nombre: string;
+	email: string;
+	rol: string;
+	medico_id?: number;
 }

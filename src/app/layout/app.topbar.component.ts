@@ -22,10 +22,7 @@ export class AppTopBarComponent {
 
 	constructor(public layoutService: LayoutService, private store: Store) { }
 
-	user$: Observable<JwtPayloadUser | null>;
+	user$: Observable<JwtPayloadUser | null> = this.store.select(selectUser);
 
-	ngOnInit() {
-		this.user$ = this.store.select(selectUser);
-	}
 
 }
