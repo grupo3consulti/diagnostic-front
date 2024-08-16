@@ -6,6 +6,7 @@ import {JwtPayloadUser} from "../../models";
 import {Observable, tap} from "rxjs";
 import {selectUser} from "../../store/selectors/user.selectors";
 import {Store} from "@ngrx/store";
+import {SemaphoreService} from "../../services/semaphore.service";
 
 @Component({
 	selector: 'app-diagnostic',
@@ -13,9 +14,21 @@ import {Store} from "@ngrx/store";
 	styleUrl: './diagnostic.component.scss'
 })
 export class DiagnosticComponent implements OnInit {
-	constructor(private syntomps: SyntomsService, private prediagnosticService: PrediagnosticService, private store: Store) {}
+	constructor(
+		private syntomps: SyntomsService,
+		private prediagnosticService: PrediagnosticService,
+		private semaphoreService: SemaphoreService
+	) {}
+
+	semaphoreColor = {
+		"verde": {"color": "#22c55e", "msg": "No hay alerta", "class": "card-verde"},
+		"rojo": {"color": "#ef4444", "msg": "Alerta roja", "class": "card-rojo"}
+	}
+
+	semaphoreAlert = {}
 
 	user = localStorage.getItem('nombre');
+	semaforo$: Observable<any[]> = this.semaphoreService.getSemaphore();
 
 
 	syntomps$ = this.syntomps.getSyntoms().pipe(
@@ -25,6 +38,7 @@ export class DiagnosticComponent implements OnInit {
 	);
 
 	selectedSyntomps: any[] = [];
+	labelSelectedSyntomps: string[] = ["Sin sintomas seleccionados"];
 
 	textAreaMsg: string = '';
 
@@ -33,6 +47,10 @@ export class DiagnosticComponent implements OnInit {
 	longitude: number | undefined;
 	errorMessage: string | undefined;
 	selectedFile: File | null;
+
+	onSyntompsChange(event: any) {
+		this.labelSelectedSyntomps = this.selectedSyntomps.map(syntom => syntom.label);
+	}
 
 	sendInformation() {
 		console.log("sintomas seleccionados", this.selectedSyntomps)
