@@ -1,24 +1,45 @@
-<div class="form-container">
-    <h1>Bienvenido a dIAgnostic</h1>
-    @if (user) {
+<div class="diagnostic-form">
+    <div class="form-container">
+        <h1>Bienvenido a dIAgnostic</h1>
+        @if (user) {
 
-        <p>Usuario: {{ user }}</p>
-    }
-    <textarea placeholder="Describa los detalles de sus síntomas"></textarea>
-    <div>
-        <p>Seleccione sus síntomas</p>
+            <p>Usuario: {{ user }}</p>
+        }
+        <textarea placeholder="Describa los detalles de sus síntomas"
+                  [value]="labelSelectedSyntomps"
+                  disabled="disabled"></textarea>
+        <div>
+            <p>Seleccione sus síntomas</p>
+        </div>
 
 
+        <p-multiSelect class="multi-select" [options]="syntomps$ | async" [(ngModel)]="selectedSyntomps"
+                       placeholder="Seleccione sus síntomas"
+                       optionLabel="label"
+                       (onChange)="onSyntompsChange($event)"
+                       display="comma">
+        </p-multiSelect>
+        <input type="file" (change)="onFileSelected($event)"/>
+        <button pButton pRipple type="button" label="Consultar Diagnostico"
+                (click)="sendInformation()"
+        ></button>
     </div>
-
-    <p-multiSelect class="multi-select" [options]="syntomps$ | async" [(ngModel)]="selectedSyntomps"
-                   placeholder="Seleccione sus síntomas"
-                   optionLabel="label"
-                   display="comma">
-    </p-multiSelect>
-    <input type="file" (change)="onFileSelected($event)"/>
-    <button pButton pRipple type="button" label="Consultar Diagnostico"
-            (click)="sendInformation()"
-    ></button>
-
+    <p-divider layout="vertical">
+    </p-divider>
+    <div class="semaphore-container">
+        <h1>Semaforo de Enfermedades</h1>
+        @for (disease of semaforo$ | async; track disease) {
+            <div [class]="semaphoreColor[disease['color']]['class']">
+                <h2>{{ disease["enfermedad"] }}</h2>
+                <div class="alert">
+                    <p>{{ semaphoreColor[disease["color"]]["msg"] }}</p>
+                </div>
+                <div class="progress-bar-container">
+                    <p>Personas Contagiadas</p>
+                    <p-progressBar [value]="disease['cantidad']" [showValue]="true" unit=""
+                                   [color]="semaphoreColor[disease['color']]['color']"></p-progressBar>
+                </div>
+            </div>
+        }
+    </div>
 </div>
