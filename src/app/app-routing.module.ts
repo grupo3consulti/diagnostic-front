@@ -11,7 +11,6 @@ import {authenticationGuard} from "./guards/authentication.guard";
 		RouterModule.forRoot([
 			{
 				path: '', component: AppLayoutComponent,
-				canActivate: [authenticationGuard],
 				children: [
 					{
 						path: 'pages',
@@ -25,8 +24,7 @@ import {authenticationGuard} from "./guards/authentication.guard";
 			},
 			{
 				path: 'auth',
-				loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule),
-				canActivate: [authenticationGuard]
+				loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule)
 			},
 			{path: 'notfound', component: NotfoundComponent},
 			{
