@@ -38,6 +38,8 @@ export class ClinicComponent implements OnInit {
     doctors: any[] = [];
     users: User[] = [];
     rol: string;
+    id: string;
+    medico_id: string;
     allAppointments: any[] = [];
     selectedDoctorId: number | null = null;
     expandedState: { [key: number]: boolean } = {};
@@ -68,13 +70,10 @@ export class ClinicComponent implements OnInit {
     ngOnInit(): void {
         this.loadClinicsAndDoctors();
         this.loadUsers();
-        this.user$.subscribe(user => {
-            if (user) {
-               this.rol = user.rol;
-            }
-        });
+        this.id = localStorage.getItem('id');
+        this.rol = localStorage.getItem('role');
+        this.medico_id = localStorage.getItem('medicoId')
         this.newConsulta = new ConsultationReq();
-        this.loadSintomas();
         if (this.fileUpload) {
             this.fileUpload.clear();
         }
@@ -133,7 +132,7 @@ export class ClinicComponent implements OnInit {
     loadSintomas(): void {
         this.clinicService.getSintomas().subscribe(
             sintomas => {
-                this.sintomasOptions = sintomas.filter(sintomas => sintomas.estado === 'Activo');
+                this.sintomasOptions = sintomas.filter(sintomas => sintomas.estado === 'activo');
             },
             error => {
                 console.error('Error loading sintomas', error);
@@ -165,36 +164,38 @@ export class ClinicComponent implements OnInit {
                     label: 'Detalles',
                     icon: 'pi pi-fw pi-info',
                     items: [
-                        { label: `Address: ${clinic.dirección}`, icon: 'pi pi-fw pi-home' },
-                        { label: `Phone: ${clinic.teléfono}`, icon: 'pi pi-fw pi-phone' },
+                        { label: `Address: ${clinic.direccion}`, icon: 'pi pi-fw pi-home' },
+                        { label: `Phone: ${clinic.telefono}`, icon: 'pi pi-fw pi-phone' },
                         { label: `Status: ${clinic.estado}`, icon: 'pi pi-fw pi-check-circle' }
                     ]
                 },
                 {
                     label: 'Médicos Disponibles',
                     icon: 'pi pi-fw pi-book',
-                    items: this.getDoctorsForClinic(clinic.id_institucion_medica).map(doctor => ({
-                        label: doctor.nombre,
-                        icon: 'pi pi-fw pi-user',
-                        expanded: currentExpandedState[doctor.id_medico] ?? true,
-                        items: [
-                            { label: `Especialidad: ${doctor.especialidad}`, icon: 'pi pi-fw pi-star' },
-                            { label: `Email: ${doctor.email}`, icon: 'pi pi-fw pi-envelope' },
-                            { label: `Phone: ${doctor.teléfono}`, icon: 'pi pi-fw pi-phone' },
-                            {
-                                label: 'Citas Disponibles',
-                                icon: 'pi pi-fw pi-calendar',
-                                items: [
-                                    ...(this.rol !== 'MEDICO' ? [{
-                                        label: 'Crear cita',
-                                        icon: 'pi pi-fw pi-calendar-plus',
-                                        command: () => this.openAppointmentDialog(doctor.id_medico)
-                                    }] : []),
-                                    ...this.getAppointmentsForDoctor(doctor.id_medico)
-                                ]
-                            }
-                        ]
-                    }))
+                    items: this.getDoctorsForClinic(clinic.id_institucion_medica)
+                        //.filter(doctor => this.rol == 'MEDICO' || doctor.id_medico === this.medico_id)
+                        .map(doctor => ({
+                            label: doctor.nombre,
+                            icon: 'pi pi-fw pi-user',
+                            expanded: currentExpandedState[doctor.id_medico] ?? true,
+                            items: [
+                                { label: `Especialidad: ${doctor.especialidad}`, icon: 'pi pi-fw pi-star' },
+                                { label: `Email: ${doctor.email}`, icon: 'pi pi-fw pi-envelope' },
+                                { label: `Phone: ${doctor.telefono}`, icon: 'pi pi-fw pi-phone' },
+                                {
+                                    label: 'Citas Disponibles',
+                                    icon: 'pi pi-fw pi-calendar',
+                                    items: [
+                                        ...(this.rol !== 'MEDICO' ? [{
+                                            label: 'Crear cita',
+                                            icon: 'pi pi-fw pi-calendar-plus',
+                                            command: () => this.openAppointmentDialog(doctor.id_medico)
+                                        }] : []),
+                                        ...this.getAppointmentsForDoctor(doctor.id_medico)
+                                    ]
+                                }
+                            ]
+                        }))
                 }
             ]
         }));
@@ -213,28 +214,28 @@ export class ClinicComponent implements OnInit {
                 label: `Fecha: ${new Date(appointment.fecha_hora).toLocaleString()}`,
                 icon: 'pi pi-fw pi-calendar',
                 items: [
-                    ...(appointment.estado === 'Disponible' ? [
+                    ...(appointment.estado === 'Disponible' && this.rol !== 'MEDICO' ?  [
                         {
                             label: 'Agendar',
                             icon: 'pi pi-fw pi-calendar-plus',
                             command: () => this.updateAppointment(appointment.id_cita)
                         }
                     ] : []),
-                    {
+                    ...(this.rol !== 'MEDICO' ? [{
                         label: 'Realizar Consulta',
                         icon: 'pi pi-fw pi-send',
-                        command: () => this.openconsultationDialog(appointment.id_cita)
-                    },
+                        command: () => this.openconsultationDialog(appointment.id_cita,appointment.medico_id)
+                    }] : []),
                     {
                         label: 'Ver resultados de la consulta',
                         icon: 'pi pi-fw pi-send',
                         command: () => this.openDetailDialog(appointment.id_cita)
                     },
-                    {
+                    ...(this.rol == 'MEDICO' ? [{
                         label: 'Cancelar',
                         icon: 'pi pi-fw pi-calendar-minus',
                         command: () => this.cancelAppointment(appointment.id_cita)
-                    }
+                    }] : [])
                 ]
             }));
     }
@@ -260,7 +261,10 @@ export class ClinicComponent implements OnInit {
         this.display = true;
     }
 
-    openconsultationDialog(cita_id: number): void {
+    openconsultationDialog(cita_id: string, medico_id): void {
+        this.loadSintomas();
+        this.newConsulta.medico_id = medico_id;
+        this.newConsulta.cita_id = cita_id;
         this.modalConsulta = true;
     }
 
@@ -303,10 +307,28 @@ export class ClinicComponent implements OnInit {
     }
 
     submitConsultation(event): void {
-        this.archivo = event.target.files[0];
-        this.clinicService.createConsultation(this.newConsulta, this.archivo).subscribe(
+        if (this.fileUpload && this.fileUpload.files.length > 0) {
+            this.archivo = this.fileUpload.files[0];
+        } else {
+            this.showAlert('error', 'Error', 'Por favor, seleccione un archivo.');
+            return;
+        }
+
+        const sintomasMapped = this.newConsulta.sintomas.map(sintoma => ({
+            id_sintoma: sintoma.id_sintoma,
+            descripcion: sintoma.descripcion
+        }));
+
+        const consultaToSend = {
+            ...this.newConsulta,
+            sintomas: sintomasMapped,
+            usuario_id: this.id
+        };
+
+        this.clinicService.createConsultation(consultaToSend, this.archivo).subscribe(
             response => {
-                this.showAlert('info', 'Exito', 'Consulta realizada con exito');
+                this.showAlert('info', 'Éxito', 'Consulta realizada con éxito');
+                this.modalConsulta = false;
             },
             error => {
                 this.showAlert('error', 'Error', error);
