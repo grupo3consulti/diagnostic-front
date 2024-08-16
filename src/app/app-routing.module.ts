@@ -4,12 +4,14 @@ import {NotfoundComponent} from './demo/components/notfound/notfound.component';
 import {AppLayoutComponent} from "./layout/app.layout.component";
 import {MessagesModule} from "primeng/messages";
 import {MessageModule} from "primeng/message";
+import {authenticationGuard} from "./guards/authentication.guard";
 
 @NgModule({
 	imports: [
 		RouterModule.forRoot([
 			{
 				path: '', component: AppLayoutComponent,
+				canActivate: [authenticationGuard],
 				children: [
 					{
 						path: 'pages',
@@ -23,12 +25,15 @@ import {MessageModule} from "primeng/message";
 			},
 			{
 				path: 'auth',
-				loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule)
+				loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule),
+				canActivate: [authenticationGuard]
 			},
 			{path: 'notfound', component: NotfoundComponent},
 			{
 				path: 'diagnostic',
-				loadChildren: () => import('./pages/diagnostic/diagnostic.module').then(m => m.DiagnosticModule)
+				loadChildren: () => import('./pages/diagnostic/diagnostic.module').then(m => m.DiagnosticModule),
+				canActivate: [authenticationGuard]
+
 			},
 			{path: '**', redirectTo: '/notfound'}
 		], {
