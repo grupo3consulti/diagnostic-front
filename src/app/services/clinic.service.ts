@@ -6,7 +6,7 @@ import {ConsultationReq} from "../models/request/ConsultationReq";
 
 @Injectable()
 export class ClinicService {
-    private apiUrl = 'http://localhost:3000/diagnostic';
+    private apiUrl = 'https://diagnostic-iva4.onrender.com/diagnostic';
 
     constructor(private http: HttpClient) { }
 
