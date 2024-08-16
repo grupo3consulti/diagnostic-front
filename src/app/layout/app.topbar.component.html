@@ -9,7 +9,7 @@
         <i class="pi pi-bars"></i>
     </button>
 
-    {{ (user$ | async)?.nombre }}
+    {{ name }}
 
     <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button"
             (click)="layoutService.showProfileSidebar()">

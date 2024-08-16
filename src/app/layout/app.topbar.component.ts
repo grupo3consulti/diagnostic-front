@@ -22,7 +22,7 @@ export class AppTopBarComponent {
 
 	constructor(public layoutService: LayoutService, private store: Store) { }
 
-	user$: Observable<JwtPayloadUser | null> = this.store.select(selectUser);
+	name = localStorage.getItem('nombre');
 
 
 }

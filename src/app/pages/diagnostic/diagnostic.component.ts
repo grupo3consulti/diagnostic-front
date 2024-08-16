@@ -15,7 +15,7 @@ import {Store} from "@ngrx/store";
 export class DiagnosticComponent implements OnInit {
 	constructor(private syntomps: SyntomsService, private prediagnosticService: PrediagnosticService, private store: Store) {}
 
-	user$: Observable<JwtPayloadUser | null>;
+	user = localStorage.getItem('nombre');
 
 
 	syntomps$ = this.syntomps.getSyntoms().pipe(
@@ -38,7 +38,7 @@ export class DiagnosticComponent implements OnInit {
 		console.log("sintomas seleccionados", this.selectedSyntomps)
 		const formData = new FormData();
 		formData.append('sintomas', JSON.stringify(this.selectedSyntomps.map(syntom => syntom.label)));
-		formData.append('nombre', this.user$.pipe(map(user => user?.nombre)).toString());
+		formData.append('nombre', this.user);
 		formData.append('x', this.coordinates.x.toString());
 		formData.append('y', this.coordinates.y.toString());
 		formData.append('filePath', this.selectedFile);
@@ -56,7 +56,6 @@ export class DiagnosticComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.user$ = this.store.select(selectUser).pipe(tap(user => console.log("user", user)));
 		this.getLocation();
 	}
 

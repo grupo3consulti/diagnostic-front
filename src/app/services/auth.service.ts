@@ -4,7 +4,7 @@ import {TokenService} from "./token.service";
 import {LOGIN_URL} from "../constans";
 import {AuthTokenResDTO} from "../models/respose";
 import {Store} from "@ngrx/store";
-import {loadUser} from "../store/actions/user.actions";
+import {clearUser, loadUser} from "../store/actions/user.actions";
 import {Router} from "@angular/router";
 
 @Injectable({
@@ -41,6 +41,11 @@ export class AuthService {
 				return res;
 			}
 		);
+	}
+
+	logout() {
+		this.store.dispatch(clearUser());
+		this.router.navigate(['/login']);
 	}
 
 
