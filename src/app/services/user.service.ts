@@ -22,4 +22,8 @@ export class UserService {
 		localStorage.removeItem('medicoId');
 	}
 
+	checkUserInfo(): boolean {
+		return !!localStorage.getItem('role') && !!localStorage.getItem('id') && !!localStorage.getItem('nombre');
+	}
+
 }

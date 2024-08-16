@@ -5,6 +5,8 @@ import {Observable} from "rxjs";
 import {JwtPayloadUser} from "../models";
 import {selectUser} from "../store/selectors/user.selectors";
 import {Store} from "@ngrx/store";
+import {AuthService} from "../services/auth.service";
+import {Router} from "@angular/router";
 
 @Component({
 	selector: 'app-topbar',
@@ -20,9 +22,15 @@ export class AppTopBarComponent {
 
 	@ViewChild('topbarmenu') menu!: ElementRef;
 
-	constructor(public layoutService: LayoutService, private store: Store) { }
+	constructor(public layoutService: LayoutService, private store: Store,
+	            private authService: AuthService, private router: Router) { }
 
 	name = localStorage.getItem('nombre');
 
+	logoutUser() {
+		this.authService.logout();
+		this.router.navigate(['/auth/login']);
+
+	}
 
 }
