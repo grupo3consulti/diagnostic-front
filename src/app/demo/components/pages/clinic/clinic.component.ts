@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { MenuItem, Message, MessageService } from 'primeng/api';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { ClinicService } from '../../../service/clinic.service';
@@ -10,11 +10,25 @@ import { CalendarModule } from "primeng/calendar";
 import { DropdownModule } from "primeng/dropdown";
 import { FormsModule } from "@angular/forms";
 import {User} from "../../../models/User";
+import {selectUser} from "../../../../store/selectors/user.selectors";
+import {Observable} from "rxjs";
+import {JwtPayloadUser} from "../../../../models";
+import {Store} from "@ngrx/store";
+import {CommonModule} from "@angular/common";
+import {Consultation, ResultadoExamen} from "../../../models/Consultation";
+import {DividerModule} from "primeng/divider";
+import {ConsultationReq, Sintomas} from "../../../../models/request/ConsultationReq";
+import {MultiSelectModule} from "primeng/multiselect";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import {FileUpload, FileUploadModule} from "primeng/fileupload";
+import {FileDemoRoutingModule} from "../../uikit/file/filedemo-routing.module";
+import {Ripple} from "primeng/ripple";
 
 @Component({
     selector: 'app-clinic',
     standalone: true,
-    imports: [PanelMenuModule, ToastModule, DialogModule, ButtonModule, CalendarModule, DropdownModule, FormsModule],
+    imports: [PanelMenuModule, CommonModule, FileDemoRoutingModule,
+        FileUploadModule, ToastModule, DialogModule, ButtonModule, CalendarModule, DropdownModule, FormsModule, DividerModule, MultiSelectModule, InputTextareaModule, FileUploadModule, Ripple],
     templateUrl: './clinic.component.html',
     styleUrls: ['./clinic.component.scss']
 })
@@ -23,24 +37,47 @@ export class ClinicComponent implements OnInit {
     clinics: any[] = [];
     doctors: any[] = [];
     users: User[] = [];
+    rol: string;
     allAppointments: any[] = [];
     selectedDoctorId: number | null = null;
     expandedState: { [key: number]: boolean } = {};
+    newConsulta: ConsultationReq;
+    archivo: File;
 
     msgs: Message[] = [];
     appointment: Appointment = new Appointment();
     display: boolean = false;
+    modalConsulta: boolean = false;
+    modalResultado: boolean = false;
+
+    consulta: Consultation;
+    examen: ResultadoExamen[];
+
+    user$: Observable<JwtPayloadUser | null> = this.store.select(selectUser);
+    sintomasOptions: Sintomas[];
 
     estadoOptions = [
         { label: 'Disponible', value: 'Disponible' },
         { label: 'No Disponible', value: 'No Disponible' }
     ];
 
-    constructor(private clinicService: ClinicService, private messageService: MessageService) {}
+    @ViewChild('fileUpload') fileUpload: FileUpload;
+
+    constructor(private clinicService: ClinicService, private messageService: MessageService, private store: Store) {}
 
     ngOnInit(): void {
         this.loadClinicsAndDoctors();
         this.loadUsers();
+        this.user$.subscribe(user => {
+            if (user) {
+               this.rol = user.rol;
+            }
+        });
+        this.newConsulta = new ConsultationReq();
+        this.loadSintomas();
+        if (this.fileUpload) {
+            this.fileUpload.clear();
+        }
     }
 
     loadClinicsAndDoctors(): void {
@@ -51,6 +88,21 @@ export class ClinicComponent implements OnInit {
             },
             error => {
                 console.error('Error loading clinics', error);
+            }
+        );
+    }
+    loadDetailConsultation(id: number): void {
+        this.clinicService.getConsultation(id).subscribe(
+            detail => {
+                this.consulta = detail;
+                this.examen = this.consulta.resultadoExamen;
+                this.examen.forEach(examen => {
+                    examen.resultado = JSON.parse(examen.resultado as unknown as string);
+                });
+            },
+            error => {
+                this.hideDialogConsulta();
+                this.showAlert('info', 'Info', 'Aun no se ha terminado de analizar la consulta');
             }
         );
     }
@@ -77,6 +129,18 @@ export class ClinicComponent implements OnInit {
             }
         );
     }
+
+    loadSintomas(): void {
+        this.clinicService.getSintomas().subscribe(
+            sintomas => {
+                this.sintomasOptions = sintomas.filter(sintomas => sintomas.estado === 'Activo');
+            },
+            error => {
+                console.error('Error loading sintomas', error);
+            }
+        );
+    }
+
 
     loadAppointments(): void {
         this.clinicService.getAppointments().subscribe(
@@ -121,11 +185,11 @@ export class ClinicComponent implements OnInit {
                                 label: 'Citas Disponibles',
                                 icon: 'pi pi-fw pi-calendar',
                                 items: [
-                                    {
+                                    ...(this.rol !== 'MEDICO' ? [{
                                         label: 'Crear cita',
                                         icon: 'pi pi-fw pi-calendar-plus',
                                         command: () => this.openAppointmentDialog(doctor.id_medico)
-                                    },
+                                    }] : []),
                                     ...this.getAppointmentsForDoctor(doctor.id_medico)
                                 ]
                             }
@@ -157,6 +221,16 @@ export class ClinicComponent implements OnInit {
                         }
                     ] : []),
                     {
+                        label: 'Realizar Consulta',
+                        icon: 'pi pi-fw pi-send',
+                        command: () => this.openconsultationDialog(appointment.id_cita)
+                    },
+                    {
+                        label: 'Ver resultados de la consulta',
+                        icon: 'pi pi-fw pi-send',
+                        command: () => this.openDetailDialog(appointment.id_cita)
+                    },
+                    {
                         label: 'Cancelar',
                         icon: 'pi pi-fw pi-calendar-minus',
                         command: () => this.cancelAppointment(appointment.id_cita)
@@ -181,8 +255,18 @@ export class ClinicComponent implements OnInit {
         this.appointment = new Appointment();
         this.appointment.medico_id = medico_id;
         this.appointment.estado = "Disponible";
-        this.appointment.fecha_hora = new Date();
+        this.appointment.fecha_creacion = new Date();
+        this.appointment.usr_creacion = "asantillany"
         this.display = true;
+    }
+
+    openconsultationDialog(cita_id: number): void {
+        this.modalConsulta = true;
+    }
+
+    openDetailDialog(cita_id: number): void {
+        this.loadDetailConsultation(cita_id)
+        this.modalResultado = true;
     }
 
     updateAppointment(cita_id: number): void {
@@ -218,8 +302,33 @@ export class ClinicComponent implements OnInit {
         );
     }
 
+    submitConsultation(event): void {
+        this.archivo = event.target.files[0];
+        this.clinicService.createConsultation(this.newConsulta, this.archivo).subscribe(
+            response => {
+                this.showAlert('info', 'Exito', 'Consulta realizada con exito');
+            },
+            error => {
+                this.showAlert('error', 'Error', error);
+            }
+        );
+        if (this.fileUpload) {
+            this.fileUpload.clear();
+        }
+    }
+
     hideDialog(): void {
         this.display = false;
+    }
+
+    deleteFile(){
+        this.fileUpload.clear();
+    }
+    hideDialogConsulta(): void {
+        this.modalResultado = false;
+        if (this.fileUpload) {
+            this.fileUpload.clear();
+        }
     }
 
     showAlert(severity: string, summary: string, detail: string): void {

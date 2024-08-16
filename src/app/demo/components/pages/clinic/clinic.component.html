@@ -7,7 +7,7 @@
     </div>
     <p-toast key="tst"></p-toast>
 
-    <p-dialog header="Crear Cita" [(visible)]="display" [modal]="true" [closable]="true" [style]="{width: '50vw'}">
+    <p-dialog header="Crear Cita" [(visible)]="display" [modal]="true" [closable]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow': 'visible'}">
         <div class="p-fluid">
             <div class="card p-fluid">
                 <div class="field">
@@ -29,11 +29,138 @@
                     <label for="estado">Estado</label>
                     <p-dropdown id="estado" [(ngModel)]="appointment.estado" [options]="estadoOptions" optionValue="value" optionLabel="label"></p-dropdown>
                 </div>
-
             </div>
             <p-footer class="p-field">
                 <button type="button" pButton label="Crear" icon="pi pi-check" (click)="submitAppointment()"></button>
             </p-footer>
         </div>
     </p-dialog>
+
+
+    <p-dialog header="Realizar consulta" [(visible)]="modalConsulta" [modal]="true" [closable]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow': 'visible'}">
+        <div class="p-fluid">
+            <div class="card p-fluid">
+                <div class="field">
+                    <label for="fecha_hora">Fecha</label>
+                    <p-calendar id="fecha_hora_consulta" [(ngModel)]="newConsulta.fecha_hora" [showTime]="true" [hourFormat]="24"></p-calendar>
+                </div>
+                <div class="field">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" rows="5" cols="30" [(ngModel)]="newConsulta.descripcion"  placeholder="Your Message" pInputTextarea></textarea>
+                </div>
+                <div class="field">
+                    <label for="sintomas">Síntomas</label>
+                    <p-multiSelect
+                        id="sintomas"
+                        [(ngModel)]="newConsulta.sintomas"
+                        [options]="sintomasOptions"
+                        optionLabel="descripcion"
+                        display="chip">
+                    </p-multiSelect>
+                </div>
+                <div class="field">
+                    <label for="archivo">Subir Archivo</label>
+                    <!--<input type="file" id="archivo" (change)="submitConsultation($event)" />-->
+                    <p-fileUpload #fileUpload  id="archivo" mode="basic" name="demo[]" accept=".pdf" [maxFileSize]="10000000"></p-fileUpload>
+                    <div class="flex flex-wrap gap-2 m-2">
+                        <button pButton pRipple type="button" label="Eliminar Archivo" class="p-button-rounded p-button-danger" (click)="deleteFile()"></button>
+                    </div>
+                </div>
+            </div>
+            <p-footer class="p-field">
+                <button type="button" pButton label="Crear" icon="pi pi-check" (click)="submitConsultation($event)"></button>
+            </p-footer>
+        </div>
+    </p-dialog>
+
+
+    <p-dialog *ngIf="consulta" header="Resultados de la consulta" [(visible)]="modalResultado" [modal]="true" [closable]="true" [style]="{width: '100vw', height: '100vh'}" [contentStyle]="{'overflow': 'auto'}">
+        <div class="p-fluid">
+            <div class="card p-fluid">
+                <div class="p-grid">
+                    <div class="p-col-12 p-md-6">
+                        <h4>Detalles de la Consulta</h4>
+                        <p><strong>ID Consulta:</strong> {{ consulta?.consulta.id_consulta }}</p>
+                        <p><strong>Fecha y Hora:</strong> {{ consulta?.consulta.fecha_hora | date:'short' }}</p>
+                        <p><strong>Descripción:</strong> {{ consulta?.consulta.descripcion }}</p>
+                    </div>
+                </div>
+                <p-divider layout="horizontal" align="center">
+                    <span class="p-tag">-------------------------</span>
+                </p-divider>
+                <div *ngFor="let examen of examen">
+                    <h4>Resultado del Examen: {{ examen.tipo_examen }}</h4>
+                    <div class="p-grid">
+                        <div class="p-col-12 p-md-6">
+                            <p><strong>ID Resultado Examen:</strong> {{ examen.id_resultado_examen }}</p>
+                            <p><strong>ID Consulta:</strong> {{ examen.consulta_id }}</p>
+                            <p><strong>Estado:</strong> {{ examen.estado }}</p>
+                        </div>
+                        <div class="p-col-12 p-md-6">
+                            <p><strong>Identificación:</strong> {{ examen.resultado?.identificacion }}</p>
+                            <p><strong>Fecha de Nacimiento:</strong> {{ examen.resultado?.fecha_nacimiento }}</p>
+                            <p><strong>Edad:</strong> {{ examen.resultado?.edad }}</p>
+                            <p><strong>Sexo:</strong> {{ examen.resultado?.sexo }}</p>
+                            <p><strong>Fecha de Ingreso:</strong> {{ examen.resultado?.fecha_ingreso }}</p>
+                            <p><strong>Fecha de Impresión:</strong> {{ examen.resultado?.fecha_impresion }}</p>
+                            <p><strong>Fecha de Resultado:</strong> {{ examen.resultado?.fecha_resultado }}</p>
+                            <p><strong>Sucursal:</strong> {{ examen.resultado?.sucursal }}</p>
+                        </div>
+                    </div>
+                    <p-divider layout="horizontal" align="center">
+                        <span class="p-tag">-------------------------</span>
+                    </p-divider>
+                    <div class="p-grid">
+                        <div class="p-col-12 p-md-6">
+                            <h5>Biometría</h5>
+                            <ul>
+                                <li><strong>Recuento de Glóbulos Rojos:</strong> {{ examen.resultado?.informe_resultados?.biometria?.recuento_globulos_rojos }}</li>
+                                <li><strong>Hemoglobina:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hemoglobina }}</li>
+                                <li><strong>Hematocrito:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hematocrito }}</li>
+                            </ul>
+                        </div>
+                        <div class="p-col-12 p-md-6">
+                            <h5>Serología Reactante Fase Aguda</h5>
+                            <ul>
+                                <li><strong>Tífico O:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_o }}</li>
+                                <li><strong>Tífico H:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_h }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p-divider layout="horizontal" align="center">
+                        <span class="p-tag">-------------------------</span>
+                    </p-divider>
+                    <div class="p-grid">
+                        <div class="p-col-12 p-md-6">
+                            <h5>Coprología</h5>
+                            <ul>
+                                <li><strong>Color:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.color }}</li>
+                                <li><strong>Consistencia:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.consistencia }}</li>
+                                <li><strong>pH:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.ph }}</li>
+                            </ul>
+                        </div>
+                        <p-divider layout="horizontal" align="center">
+                            <span class="p-tag">-------------------------</span>
+                        </p-divider>
+                        <div class="p-col-12 p-md-6">
+                            <p><strong>Validado por:</strong> {{ examen.resultado?.validado_por }}</p>
+                            <p><strong>Firmado Electrónicamente por:</strong> {{ examen.resultado?.firmado_electronicamente_por }}</p>
+                            <p><strong>Laboratorio Clínico:</strong> {{ examen.resultado?.laboratorio_clinico }}</p>
+                            <p><strong>RUC:</strong> {{ examen.resultado?.ruc }}</p>
+                            <p><strong>Director Técnico:</strong> {{ examen.resultado?.director_tecnico }}</p>
+                            <p><strong>Dirección:</strong> {{ examen.resultado?.direccion }}</p>
+                            <p><strong>Teléfonos:</strong> {{ examen.resultado?.telefonos }}</p>
+                            <p><strong>Orden No:</strong> {{ examen.resultado?.orden_no }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p-footer class="p-field">
+                <button type="button" pButton label="Cerrar" icon="pi pi-times" (click)="hideDialogConsulta()"></button>
+            </p-footer>
+        </div>
+    </p-dialog>
+
+
 </div>
