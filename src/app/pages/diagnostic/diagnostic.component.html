@@ -1,8 +1,8 @@
 <div class="form-container">
     <h1>Bienvenido a dIAgnostic</h1>
-    @if ((user$ | async) != null) {
+    @if (user) {
 
-        <p>Usuario: {{ (user$ | async).name }}</p>
+        <p>Usuario: {{ user }}</p>
     }
     <textarea placeholder="Describa los detalles de sus síntomas"></textarea>
     <div>
