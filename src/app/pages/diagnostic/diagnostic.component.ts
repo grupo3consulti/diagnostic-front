@@ -33,7 +33,7 @@ export class DiagnosticComponent implements OnInit {
 
 	syntomps$ = this.syntomps.getSyntoms().pipe(
 		map(syntoms => syntoms.map(syntom => {
-			return {label: syntom.descripción, value: syntom.id_síntoma}
+			return {label: syntom.descripcion, value: syntom.id_sintoma}
 		}))
 	);
 
