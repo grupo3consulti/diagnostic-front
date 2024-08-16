@@ -8,6 +8,9 @@ import {selectUser} from "../../store/selectors/user.selectors";
 import {Store} from "@ngrx/store";
 import {SemaphoreService} from "../../services/semaphore.service";
 import {UserService} from "../../services/user.service";
+import {MessageService} from "primeng/api";
+import {PrediagnosticResDTO} from "../../models/respose";
+import {Router} from "@angular/router";
 
 @Component({
 	selector: 'app-diagnostic',
@@ -19,18 +22,23 @@ export class DiagnosticComponent implements OnInit {
 		private syntomps: SyntomsService,
 		private prediagnosticService: PrediagnosticService,
 		private semaphoreService: SemaphoreService,
-		private userService: UserService
+		private userService: UserService,
+		private msgService: MessageService,
+		private router: Router
 	) {}
 
-	semaphoreColor = {
+	public semaphoreColor = {
 		"verde": {"color": "#22c55e", "msg": "No hay alerta", "class": "card-verde"},
 		"rojo": {"color": "#ef4444", "msg": "Alerta roja", "class": "card-rojo"}
 	}
 
-	semaphoreAlert = {}
 
 	user = localStorage.getItem('nombre');
-	semaforo$: Observable<any[]> = this.semaphoreService.getSemaphore();
+	semaforo$: Observable<any[]> = this.semaphoreService.getSemaphore().pipe(
+		map(semaphore => (
+			semaphore.filter(semaphore => semaphore.enfermedad != null && semaphore["color"] != null && semaphore.cantidad != null)
+		))
+	);
 
 
 	syntomps$ = this.syntomps.getSyntoms().pipe(
@@ -38,6 +46,8 @@ export class DiagnosticComponent implements OnInit {
 			return {label: syntom.descripcion, value: syntom.id_sintoma}
 		}))
 	);
+
+	loading: boolean = false;
 
 	selectedSyntomps: any[] = [];
 	labelSelectedSyntomps: string[] = ["Sin sintomas seleccionados"];
@@ -49,12 +59,17 @@ export class DiagnosticComponent implements OnInit {
 	longitude: number | undefined;
 	errorMessage: string | undefined;
 	selectedFile: File | null;
+	prediagnosticResult: PrediagnosticResDTO;
+	visible: boolean = true;
+	scheduleButton: boolean = false;
 
 	onSyntompsChange(event: any) {
 		this.labelSelectedSyntomps = this.selectedSyntomps.map(syntom => syntom.label);
 	}
 
 	sendInformation() {
+		this.loading = true;
+
 		if (this.userService.checkUserInfo()) {
 			console.log("sintomas seleccionados", this.selectedSyntomps)
 			const formData = new FormData();
@@ -69,10 +84,31 @@ export class DiagnosticComponent implements OnInit {
 				{
 					next: value => {
 						console.log("value", value);
+						this.prediagnosticResult = value;
+						this.visible = true;
+						this.loading = false;
+
+					},
+					error: error => {
+						console.error("error", error);
+						this.prediagnosticResult = {
+							prediagnostico: "No se pudo realizar el prediagnostico",
+							recomendaciones: "Error al crear prediagnostico",
+							medicosCercanosRecomendados: []
+						};
+						this.scheduleButton = true;
+						this.loading = false;
 					}
 				}
 			);
 		} else {
+			this.msgService.add({
+				key: 'tst',
+				severity: 'warn',
+				summary: 'Inicie sesión',
+				detail: 'Debe iniciar sesión para realizar un prediagnostico'
+			});
+			this.loading = false;
 
 		}
 
@@ -106,4 +142,10 @@ export class DiagnosticComponent implements OnInit {
 	onFileSelected(event: any) {
 		this.selectedFile = event.target.files[0];
 	}
+
+	onAcceptModal() {
+		this.visible = false;
+		this.router.navigate(['/pages/clinic']);
+	}
+
 }
