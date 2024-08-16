@@ -15,7 +15,7 @@ import {Observable} from "rxjs";
 import {JwtPayloadUser} from "../../../../models";
 import {Store} from "@ngrx/store";
 import {CommonModule} from "@angular/common";
-import {Consultation, ResultadoExamen} from "../../../../models/respose/Consultation";
+import {ConsultaAuditoria, Consultation, ResultadoExamen} from "../../../../models/respose/Consultation";
 import {DividerModule} from "primeng/divider";
 import {ConsultationReq, Sintomas} from "../../../../models/request/ConsultationReq";
 import {MultiSelectModule} from "primeng/multiselect";
@@ -45,14 +45,18 @@ export class ClinicComponent implements OnInit {
     newConsulta: ConsultationReq;
     archivo: File;
 
+    idConsulta: number;
+    idCita: string;
     msgs: Message[] = [];
     appointment: Appointment = new Appointment();
     display: boolean = false;
     modalConsulta: boolean = false;
     modalResultado: boolean = false;
+    modalObservacion: boolean = false;
 
     consulta: Consultation;
     examen: ResultadoExamen[];
+    resultado: ConsultaAuditoria[];
 
     user$: Observable<JwtPayloadUser | null> = this.store.select(selectUser);
     sintomasOptions: Sintomas[];
@@ -89,14 +93,17 @@ export class ClinicComponent implements OnInit {
             }
         );
     }
-    loadDetailConsultation(id: number): void {
+    loadDetailConsultation(id: string): void {
         this.clinicService.getConsultation(id).subscribe(
             detail => {
                 this.consulta = detail;
                 this.examen = this.consulta.resultadoExamen;
+                this.idCita = id;
                 this.examen.forEach(examen => {
                     examen.resultado = JSON.parse(examen.resultado as unknown as string);
                 });
+                this.resultado = this.consulta.consultaAuditoria;
+
             },
             error => {
                 this.hideDialogConsulta();
@@ -172,7 +179,6 @@ export class ClinicComponent implements OnInit {
                     label: 'Médicos Disponibles',
                     icon: 'pi pi-fw pi-book',
                     items: this.getDoctorsForClinic(clinic.id_institucion_medica)
-                        //.filter(doctor => this.rol == 'MEDICO' || doctor.id_medico === this.medico_id)
                         .map(doctor => ({
                             label: doctor.nombre,
                             icon: 'pi pi-fw pi-user',
@@ -208,7 +214,13 @@ export class ClinicComponent implements OnInit {
 
     getAppointmentsForDoctor(doctorId: number): MenuItem[] {
         return this.allAppointments
-            .filter(appointment => appointment.medico_id === doctorId && appointment.estado !== 'Eliminado')
+            .filter(appointment =>
+                appointment.estado !== 'Eliminado' &&
+                (
+                    (this.rol === 'MEDICO' && appointment.medico_id === doctorId) ||
+                    (this.rol !== 'MEDICO' && appointment.usuario_id == this.id)
+                )
+            )
             .map(appointment => ({
                 label: `Fecha: ${new Date(appointment.fecha_hora).toLocaleString()}`,
                 icon: 'pi pi-fw pi-calendar',
@@ -223,14 +235,19 @@ export class ClinicComponent implements OnInit {
                     ...(this.rol !== 'MEDICO' ? [{
                         label: 'Realizar Consulta',
                         icon: 'pi pi-fw pi-send',
-                        command: () => this.openconsultationDialog(appointment.id_cita,appointment.medico_id)
+                        command: () => this.openconsultationDialog(appointment.id_cita, appointment.medico_id)
                     }] : []),
                     {
                         label: 'Ver resultados de la consulta',
                         icon: 'pi pi-fw pi-send',
                         command: () => this.openDetailDialog(appointment.id_cita)
                     },
-                    ...(this.rol == 'MEDICO' ? [{
+                    ...(this.rol === 'MEDICO' ? [{
+                        label: 'Agregar observación de los resultados',
+                        icon: 'pi pi-fw pi-align-left',
+                        command: () => this.openObservation(appointment.id_cita)
+                    }] : []),
+                    ...(this.rol === 'MEDICO' ? [{
                         label: 'Cancelar',
                         icon: 'pi pi-fw pi-calendar-minus',
                         command: () => this.cancelAppointment(appointment.id_cita)
@@ -267,9 +284,24 @@ export class ClinicComponent implements OnInit {
         this.modalConsulta = true;
     }
 
-    openDetailDialog(cita_id: number): void {
+    openDetailDialog(cita_id: string): void {
         this.loadDetailConsultation(cita_id)
         this.modalResultado = true;
+    }
+
+    openObservation(cita_id:string): void {
+        this.modalObservacion = true;
+        this.idConsulta =0;
+        this.clinicService.getConsultation(cita_id).subscribe(
+            detail => {
+                this.consulta = detail;
+                this.idConsulta = this.consulta.consulta.id_consulta;
+            },
+            error => {
+                this.hideDialogConsulta();
+                this.showAlert('info', 'Info', 'Aun no se ha terminado de analizar la consulta');
+            }
+        );
     }
 
     updateAppointment(cita_id: number): void {
@@ -305,7 +337,7 @@ export class ClinicComponent implements OnInit {
         );
     }
 
-    submitConsultation(event): void {
+    submitConsultation(): void {
         if (this.fileUpload && this.fileUpload.files.length > 0) {
             this.archivo = this.fileUpload.files[0];
         } else {
@@ -330,7 +362,7 @@ export class ClinicComponent implements OnInit {
                 this.modalConsulta = false;
             },
             error => {
-                this.showAlert('error', 'Error', error);
+                this.showAlert('error', 'Error', 'No se pudo crear la consulta, revisar la información');
             }
         );
         if (this.fileUpload) {
@@ -338,6 +370,18 @@ export class ClinicComponent implements OnInit {
         }
     }
 
+    submitObservation() {
+        this.clinicService.updateConsultation(this.idConsulta, this.newConsulta).subscribe(
+            () => {
+                this.showAlert('info', 'Actualización', 'Consulta actualizada con exito');
+                this.modalObservacion = false;
+            },
+            error => {
+                this.showAlert('error', 'Error', 'No se han analizado los examenes aun');
+                this.modalObservacion = false;
+            }
+        );
+    }
     hideDialog(): void {
         this.display = false;
     }
@@ -355,4 +399,6 @@ export class ClinicComponent implements OnInit {
     showAlert(severity: string, summary: string, detail: string): void {
         this.messageService.add({ key: 'tst', severity: severity, summary: summary, detail: detail });
     }
+
+
 }

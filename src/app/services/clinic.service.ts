@@ -42,7 +42,7 @@ export class ClinicService {
         return this.http.get<any[]>(this.apiUrl + '/sintomas');
     }
 
-    getConsultation(id: number): Observable<any> {
+    getConsultation(id: string): Observable<any> {
         return this.http.get<any>(this.apiUrl + '/consultas/details/'+ id);
     }
 
@@ -53,10 +53,17 @@ export class ClinicService {
         formData.append("usuario_id",consulta.usuario_id);
         formData.append("medico_id",consulta.medico_id);
         formData.append("fecha_hora",consulta.fecha_hora);
+        formData.append("cita_id",consulta.cita_id);
         formData.append("sintomas", JSON.stringify(consulta.sintomas));
         formData.append("filePath",archivo);
 
         return this.http.post<any>(this.apiUrl + '/consultas', formData);
+    }
+
+    updateConsultation(cita_id: number ,consulta: ConsultationReq): Observable<any> {
+
+
+        return this.http.put<any>(this.apiUrl + '/consultas/'+ cita_id, consulta);
     }
 
 }

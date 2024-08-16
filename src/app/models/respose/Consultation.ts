@@ -45,9 +45,20 @@ export interface ConsultaEnfermedad {
     fecha_modificacion: Date;
 }
 
+export class ConsultaAuditoria {
+    id_auditoria: number;
+    consulta_id: number;
+    documento_auditoria: string;
+    prediagnostico: string;
+    fecha_creacion: string;
+    usr_creacion: string
+
+}
+
 export interface Consultation {
     consulta: Consulta;
     resultadoExamen: ResultadoExamen[];
     consultaSintomas: ConsultaSintoma[];
     consultaEnfermedad: ConsultaEnfermedad[];
+    consultaAuditoria: ConsultaAuditoria[];
 }
