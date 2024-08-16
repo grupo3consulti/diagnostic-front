@@ -1,0 +1,24 @@
+<div class="form-container">
+    <h1>Bienvenido a dIAgnostic</h1>
+    @if ((user$ | async) != null) {
+
+        <p>Usuario: {{ (user$ | async).name }}</p>
+    }
+    <textarea placeholder="Describa los detalles de sus síntomas"></textarea>
+    <div>
+        <p>Seleccione sus síntomas</p>
+
+
+    </div>
+
+    <p-multiSelect class="multi-select" [options]="syntomps$ | async" [(ngModel)]="selectedSyntomps"
+                   placeholder="Seleccione sus síntomas"
+                   optionLabel="label"
+                   display="comma">
+    </p-multiSelect>
+    <input type="file" (change)="onFileSelected($event)"/>
+    <button pButton pRipple type="button" label="Consultar Diagnostico"
+            (click)="sendInformation()"
+    ></button>
+
+</div>
