@@ -1,33 +1,32 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import { MenuItem, Message, MessageService } from 'primeng/api';
 import { PanelMenuModule } from 'primeng/panelmenu';
-import { ClinicService } from '../../../service/clinic.service';
+import { ClinicService } from '../../../../services/clinic.service';
 import { ToastModule } from "primeng/toast";
-import { Appointment } from "../../../models/Appointment";
+import { Appointment } from "../../../../models/respose/Appointment";
 import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
 import { CalendarModule } from "primeng/calendar";
 import { DropdownModule } from "primeng/dropdown";
 import { FormsModule } from "@angular/forms";
-import {User} from "../../../models/User";
+import {User} from "../../../../models/respose/User";
 import {selectUser} from "../../../../store/selectors/user.selectors";
 import {Observable} from "rxjs";
 import {JwtPayloadUser} from "../../../../models";
 import {Store} from "@ngrx/store";
 import {CommonModule} from "@angular/common";
-import {Consultation, ResultadoExamen} from "../../../models/Consultation";
+import {Consultation, ResultadoExamen} from "../../../../models/respose/Consultation";
 import {DividerModule} from "primeng/divider";
 import {ConsultationReq, Sintomas} from "../../../../models/request/ConsultationReq";
 import {MultiSelectModule} from "primeng/multiselect";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {FileUpload, FileUploadModule} from "primeng/fileupload";
-import {FileDemoRoutingModule} from "../../uikit/file/filedemo-routing.module";
 import {Ripple} from "primeng/ripple";
 
 @Component({
     selector: 'app-clinic',
     standalone: true,
-    imports: [PanelMenuModule, CommonModule, FileDemoRoutingModule,
+    imports: [PanelMenuModule, CommonModule,
         FileUploadModule, ToastModule, DialogModule, ButtonModule, CalendarModule, DropdownModule, FormsModule, DividerModule, MultiSelectModule, InputTextareaModule, FileUploadModule, Ripple],
     templateUrl: './clinic.component.html',
     styleUrls: ['./clinic.component.scss']
@@ -186,7 +185,7 @@ export class ClinicComponent implements OnInit {
                                     label: 'Citas Disponibles',
                                     icon: 'pi pi-fw pi-calendar',
                                     items: [
-                                        ...(this.rol !== 'MEDICO' ? [{
+                                        ...(this.rol == 'MEDICO' ? [{
                                             label: 'Crear cita',
                                             icon: 'pi pi-fw pi-calendar-plus',
                                             command: () => this.openAppointmentDialog(doctor.id_medico)

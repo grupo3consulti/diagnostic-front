@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import {ClinicRoutingModule} from "./clinic-routing.module";
 import {PanelMenuModule} from "primeng/panelmenu";
-import {ClinicService} from "../../../service/clinic.service";
+import {ClinicService} from "../../../../services/clinic.service";
 import {MessageService} from "primeng/api";
 
 @NgModule({

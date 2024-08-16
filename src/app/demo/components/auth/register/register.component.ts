@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ClinicService} from "../../../service/clinic.service";
+import {ClinicService} from "../../../../services/clinic.service";
 import {map} from "rxjs/operators";
 import {RegisterService} from "../../../../services/register.service";
 import {DoctorService} from "../../../../services/doctor.service";

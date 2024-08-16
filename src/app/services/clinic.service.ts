@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {Observable} from "rxjs";
-import {Appointment} from "../models/Appointment";
-import {ConsultationReq} from "../../models/request/ConsultationReq";
+import {Appointment} from "../models/respose/Appointment";
+import {ConsultationReq} from "../models/request/ConsultationReq";
 
 @Injectable()
 export class ClinicService {

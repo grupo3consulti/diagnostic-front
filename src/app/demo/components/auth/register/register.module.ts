@@ -8,7 +8,7 @@ import {FormsModule} from '@angular/forms';
 import {PasswordModule} from 'primeng/password';
 import {RegisterComponent} from './register.component';
 import {DropdownModule} from "primeng/dropdown";
-import {ClinicService} from "../../../service/clinic.service";
+import {ClinicService} from "../../../../services/clinic.service";
 import {InputSwitchModule} from "primeng/inputswitch";
 
 @NgModule({
