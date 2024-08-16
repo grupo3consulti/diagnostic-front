@@ -7,6 +7,7 @@ import {Observable, tap} from "rxjs";
 import {selectUser} from "../../store/selectors/user.selectors";
 import {Store} from "@ngrx/store";
 import {SemaphoreService} from "../../services/semaphore.service";
+import {UserService} from "../../services/user.service";
 
 @Component({
 	selector: 'app-diagnostic',
@@ -17,7 +18,8 @@ export class DiagnosticComponent implements OnInit {
 	constructor(
 		private syntomps: SyntomsService,
 		private prediagnosticService: PrediagnosticService,
-		private semaphoreService: SemaphoreService
+		private semaphoreService: SemaphoreService,
+		private userService: UserService
 	) {}
 
 	semaphoreColor = {
@@ -53,22 +55,26 @@ export class DiagnosticComponent implements OnInit {
 	}
 
 	sendInformation() {
-		console.log("sintomas seleccionados", this.selectedSyntomps)
-		const formData = new FormData();
-		formData.append('sintomas', JSON.stringify(this.selectedSyntomps.map(syntom => syntom.label)));
-		formData.append('nombre', this.user);
-		formData.append('x', this.coordinates.x.toString());
-		formData.append('y', this.coordinates.y.toString());
-		formData.append('filePath', this.selectedFile);
-		console.log("formData", formData);
+		if (this.userService.checkUserInfo()) {
+			console.log("sintomas seleccionados", this.selectedSyntomps)
+			const formData = new FormData();
+			formData.append('sintomas', JSON.stringify(this.selectedSyntomps.map(syntom => syntom.label)));
+			formData.append('nombre', this.user);
+			formData.append('x', this.coordinates.x.toString());
+			formData.append('y', this.coordinates.y.toString());
+			formData.append('filePath', this.selectedFile);
+			console.log("formData", formData);
 
-		this.prediagnosticService.createPrediagnostic(formData).subscribe(
-			{
-				next: value => {
-					console.log("value", value);
+			this.prediagnosticService.createPrediagnostic(formData).subscribe(
+				{
+					next: value => {
+						console.log("value", value);
+					}
 				}
-			}
-		);
+			);
+		} else {
+
+		}
 
 
 	}
