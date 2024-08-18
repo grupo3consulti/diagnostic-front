@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:3000/diagnostic';
+export const BASE_URL = 'https://diagnostic-iva4.onrender.com/diagnostic';
 export const LOGIN_URL = `${BASE_URL}/usuarios/login`;
 export const REGISTER_URL = `${BASE_URL}/usuarios`;
 export const REGISTER_DOCTOR_URL = `${BASE_URL}/medicos`;
