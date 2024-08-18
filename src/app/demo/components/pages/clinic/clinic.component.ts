@@ -18,7 +18,7 @@ import {CommonModule} from "@angular/common";
 import {
 	ConsultaAuditoria,
 	Consultation,
-	ResultadoExamen
+	ResultadoExamen, ResultadoExamenParsed
 } from "../../../../models/respose/Consultation";
 import {DividerModule} from "primeng/divider";
 import {ConsultationReq, Sintomas} from "../../../../models/request/ConsultationReq";
@@ -26,6 +26,7 @@ import {MultiSelectModule} from "primeng/multiselect";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {FileUpload, FileUploadModule} from "primeng/fileupload";
 import {Ripple} from "primeng/ripple";
+import {UserService} from "../../../../services/user.service";
 
 @Component({
 	selector: 'app-clinic',
@@ -49,6 +50,7 @@ export class ClinicComponent implements OnInit {
 	newConsulta: ConsultationReq;
 	archivo: File;
 	isLoading: boolean = false;
+	consultationUser: User;
 
 	idConsulta: number;
 	idCita: string;
@@ -73,7 +75,7 @@ export class ClinicComponent implements OnInit {
 
 	@ViewChild('fileUpload') fileUpload: FileUpload;
 
-	constructor(private clinicService: ClinicService, private messageService: MessageService, private store: Store) {}
+	constructor(private clinicService: ClinicService, private messageService: MessageService, private userService: UserService, private store: Store) {}
 
 	ngOnInit(): void {
 		this.loadClinicsAndDoctors();
@@ -102,14 +104,23 @@ export class ClinicComponent implements OnInit {
 	loadDetailConsultation(id: string): void {
 		this.clinicService.getConsultation(id).subscribe(
 			detail => {
-				this.consulta = detail;
-				this.examen = this.consulta.resultadoExamen;
-				this.idCita = id;
-				this.examen.forEach(examen => {
-					examen.resultado = JSON.parse(examen.resultado as unknown as string);
-				});
-				this.resultado = this.consulta.consultaAuditoria;
-
+				try {
+					this.consulta = detail;
+					console.log("consulta", this.consulta);
+					this.examen = this.consulta.resultadoExamen;
+					this.idCita = id;
+					this.examen.forEach(examen => {
+						examen.resultado = JSON.parse(examen.resultado as string) as ResultadoExamenParsed;
+					});
+					console.log("usuarioId", this.consulta.consulta.usuario_id)
+					this.selectCurrentUser(this.consulta.consulta.usuario_id);
+					console.log("examen", this.examen);
+					this.resultado = this.consulta.consultaAuditoria;
+					console.log("resultado", this.resultado);
+				} catch (e) {
+					this.hideDialogConsulta();
+					this.showAlert('info', 'Info', 'Aun no se ha terminado de analizar la consulta');
+				}
 			},
 			error => {
 				this.hideDialogConsulta();
@@ -291,7 +302,7 @@ export class ClinicComponent implements OnInit {
 	}
 
 	openDetailDialog(cita_id: string): void {
-		this.loadDetailConsultation(cita_id)
+		this.loadDetailConsultation(cita_id);
 		this.modalResultado = true;
 	}
 
@@ -415,5 +426,16 @@ export class ClinicComponent implements OnInit {
 		this.messageService.add({key: 'tst', severity: severity, summary: summary, detail: detail});
 	}
 
+	selectCurrentUser(id: number): void {
+		this.userService.getUserById(id).subscribe(
+			{
+				next: user => {
+					this.consultationUser = user;
+				}
+			}
+		)
+
+
+	}
 
 }
