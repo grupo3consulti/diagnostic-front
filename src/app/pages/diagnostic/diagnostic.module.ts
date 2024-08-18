@@ -5,10 +5,14 @@ import {DiagnosticRoutingModule} from './diagnostic-routing.module';
 import {DiagnosticComponent} from './diagnostic.component';
 import {MultiSelectModule} from "primeng/multiselect";
 import {FormsModule} from "@angular/forms";
-import {ButtonDirective} from "primeng/button";
+import {ButtonDirective, ButtonModule} from "primeng/button";
 import {Ripple} from "primeng/ripple";
 import {ProgressBarModule} from "primeng/progressbar";
 import {DividerModule} from "primeng/divider";
+import {MessageModule} from "primeng/message";
+import {MessageService} from "primeng/api";
+import {ToastModule} from "primeng/toast";
+import {DialogModule} from "primeng/dialog";
 
 
 @NgModule({
@@ -23,7 +27,13 @@ import {DividerModule} from "primeng/divider";
 		ButtonDirective,
 		Ripple,
 		ProgressBarModule,
-		DividerModule
+		DividerModule,
+		MessageModule,
+		ToastModule,
+		DialogModule,
+		ButtonModule
+	], providers: [
+		MessageService
 	]
 })
 export class DiagnosticModule {

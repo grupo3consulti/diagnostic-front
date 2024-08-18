@@ -7,27 +7,30 @@
     </div>
     <p-toast key="tst"></p-toast>
 
-    <p-dialog header="Crear Cita" [(visible)]="display" [modal]="true" [closable]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow': 'visible'}">
+    <p-dialog header="Crear Cita" [(visible)]="display" [modal]="true" [closable]="true" [style]="{width: '50vw'}"
+              [contentStyle]="{'overflow': 'visible'}">
         <div class="p-fluid">
             <div class="card p-fluid">
                 <div class="field">
                     <label for="fecha_hora">Fecha</label>
-                    <p-calendar id="fecha_hora" [(ngModel)]="appointment.fecha_hora" [showTime]="true" [hourFormat]="24"></p-calendar>
+                    <p-calendar id="fecha_hora" [(ngModel)]="appointment.fecha_hora" [showTime]="true"
+                                [hourFormat]="24"></p-calendar>
                 </div>
                 <div class="field">
                     <label for="estado">Usuario</label>
                     <p-dropdown
-                        id="usuario"
-                        [(ngModel)]="appointment.usuario_id"
-                        [options]="users"
-                        optionValue="id_usuario"
-                        placeholder="Seleccione un paciente"
-                        optionLabel="nombre">
+                            id="usuario"
+                            [(ngModel)]="appointment.usuario_id"
+                            [options]="users"
+                            optionValue="id_usuario"
+                            placeholder="Seleccione un paciente"
+                            optionLabel="nombre">
                     </p-dropdown>
                 </div>
                 <div class="field">
                     <label for="estado">Estado</label>
-                    <p-dropdown id="estado" [(ngModel)]="appointment.estado" [options]="estadoOptions" optionValue="value" optionLabel="label"></p-dropdown>
+                    <p-dropdown id="estado" [(ngModel)]="appointment.estado" [options]="estadoOptions"
+                                optionValue="value" optionLabel="label"></p-dropdown>
                 </div>
             </div>
             <p-footer class="p-field">
@@ -37,38 +40,45 @@
     </p-dialog>
 
 
-    <p-dialog header="Realizar consulta" [(visible)]="modalConsulta" [modal]="true" [closable]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow': 'visible'}">
+    <p-dialog header="Realizar consulta" [(visible)]="modalConsulta" [modal]="true" [closable]="true"
+              [style]="{width: '50vw'}" [contentStyle]="{'overflow': 'visible'}">
         <div class="p-fluid">
             <div class="card p-fluid">
                 <div class="field">
                     <label for="fecha_hora">Fecha</label>
-                    <p-calendar id="fecha_hora_consulta" [(ngModel)]="newConsulta.fecha_hora" [showTime]="true" [hourFormat]="24"></p-calendar>
+                    <p-calendar id="fecha_hora_consulta" [(ngModel)]="newConsulta.fecha_hora" [showTime]="true"
+                                [hourFormat]="24"></p-calendar>
                 </div>
                 <div class="field">
                     <label for="sintomas">Síntomas</label>
                     <p-multiSelect
-                        id="sintomas"
-                        [(ngModel)]="newConsulta.sintomas"
-                        [options]="sintomasOptions"
-                        optionLabel="descripcion"
-                        display="chip">
+                            id="sintomas"
+                            [(ngModel)]="newConsulta.sintomas"
+                            [options]="sintomasOptions"
+                            optionLabel="descripcion"
+                            display="chip">
                     </p-multiSelect>
                 </div>
                 <div class="field">
                     <label for="archivo">Subir Archivo</label>
-                    <p-fileUpload #fileUpload  id="archivo" mode="basic" name="demo[]" accept=".pdf" [maxFileSize]="10000000"></p-fileUpload>
+                    <p-fileUpload #fileUpload id="archivo" mode="basic" name="demo[]" accept=".pdf"
+                                  [maxFileSize]="10000000"></p-fileUpload>
                     <div class="flex flex-wrap gap-2 m-2">
-                        <button pButton pRipple type="button" label="Eliminar Archivo" class="p-button-rounded p-button-danger" (click)="deleteFile()"></button>
+                        <button pButton pRipple type="button" label="Eliminar Archivo"
+                                class="p-button-rounded p-button-danger" (click)="deleteFile()"></button>
                     </div>
                 </div>
             </div>
             <p-footer class="p-field">
-                <button type="button" pButton label="Crear" icon="pi pi-check" (click)="submitConsultation()"></button>
+                <button [loading]="isLoading" type="button" pButton label="Crear" icon="pi pi-check"
+                        (click)="submitConsultation()"
+                ></button>
             </p-footer>
         </div>
     </p-dialog>
 
-    <p-dialog *ngIf="consulta" header="Detalla de la consulta" [(visible)]="modalResultado" [modal]="true" [closable]="true" [style]="{width: '100vw', height: '100vh'}" [contentStyle]="{'overflow': 'auto'}">
+    <p-dialog *ngIf="consulta" header="Detalla de la consulta" [(visible)]="modalResultado" [modal]="true"
+              [closable]="true" [style]="{width: '100vw', height: '100vh'}" [contentStyle]="{'overflow': 'auto'}">
         <div class="p-fluid">
             <div class="card p-fluid">
                 <p-divider layout="horizontal" align="center">
@@ -95,9 +105,15 @@
                     <div class="p-grid">
                         <div class="p-col-12 p-md-6">
                             <ul>
-                                <li><strong>Recuento de Glóbulos Rojos:</strong> {{ examen.resultado?.informe_resultados?.biometria?.recuento_globulos_rojos }}</li>
-                                <li><strong>Hemoglobina:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hemoglobina }}</li>
-                                <li><strong>Hematocrito:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hematocrito }}</li>
+                                <li><strong>Recuento de Glóbulos
+                                    Rojos:</strong> {{ examen.resultado?.informe_resultados?.biometria?.recuento_globulos_rojos }}
+                                </li>
+                                <li>
+                                    <strong>Hemoglobina:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hemoglobina }}
+                                </li>
+                                <li>
+                                    <strong>Hematocrito:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hematocrito }}
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -107,8 +123,12 @@
                     <div class="p-grid">
                         <div class="p-col-12 p-md-6">
                             <ul>
-                                <li><strong>Tífico O:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_o }}</li>
-                                <li><strong>Tífico H:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_h }}</li>
+                                <li><strong>Tífico
+                                    O:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_o }}
+                                </li>
+                                <li><strong>Tífico
+                                    H:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_h }}
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -118,9 +138,15 @@
                     <div class="p-grid">
                         <div class="p-col-12 p-md-6">
                             <ul>
-                                <li><strong>Color:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.color }}</li>
-                                <li><strong>Consistencia:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.consistencia }}</li>
-                                <li><strong>pH:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.ph }}</li>
+                                <li>
+                                    <strong>Color:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.color }}
+                                </li>
+                                <li>
+                                    <strong>Consistencia:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.consistencia }}
+                                </li>
+                                <li>
+                                    <strong>pH:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.ph }}
+                                </li>
                             </ul>
                         </div>
                         <p-divider layout="horizontal" align="center">
@@ -138,7 +164,8 @@
                              *ngIf="consulta?.consulta.descripcion !== 'undefined' && consulta?.consulta.descripcion !== null && consulta?.consulta.descripcion !== ''; else noRevisado">
                             <p><strong>Descripción:</strong> {{ consulta?.consulta.descripcion }}</p>
                             <p><strong>Validado por:</strong> {{ examen.resultado?.validado_por }}</p>
-                            <p><strong>Firmado Electrónicamente por:</strong> {{ examen.resultado?.firmado_electronicamente_por }}</p>
+                            <p><strong>Firmado Electrónicamente
+                                por:</strong> {{ examen.resultado?.firmado_electronicamente_por }}</p>
                             <p><strong>Laboratorio Clínico:</strong> {{ examen.resultado?.laboratorio_clinico }}</p>
                             <p><strong>RUC:</strong> {{ examen.resultado?.ruc }}</p>
                             <p><strong>Director Técnico:</strong> {{ examen.resultado?.director_tecnico }}</p>
@@ -160,12 +187,14 @@
             </p-footer>
         </div>
     </p-dialog>
-    <p-dialog header="Ingresar observación" *ngIf="idConsulta" [(visible)]="modalObservacion" [modal]="true" [closable]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow': 'visible'}">
+    <p-dialog header="Ingresar observación" *ngIf="idConsulta" [(visible)]="modalObservacion" [modal]="true"
+              [closable]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow': 'visible'}">
         <div class="p-fluid">
             <div class="card p-fluid">
                 <div class="field">
                     <label for="observacion">Observacion</label>
-                    <textarea id="observacion" rows="5" cols="30" [(ngModel)]="newConsulta.descripcion"  placeholder="Your Message" pInputTextarea></textarea>
+                    <textarea id="observacion" rows="5" cols="30" [(ngModel)]="newConsulta.descripcion"
+                              placeholder="Your Message" pInputTextarea></textarea>
                 </div>
             </div>
             <p-footer class="p-field">

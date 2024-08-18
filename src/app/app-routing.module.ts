@@ -29,8 +29,7 @@ import {authenticationGuard} from "./guards/authentication.guard";
 			{path: 'notfound', component: NotfoundComponent},
 			{
 				path: 'diagnostic',
-				loadChildren: () => import('./pages/diagnostic/diagnostic.module').then(m => m.DiagnosticModule),
-				canActivate: [authenticationGuard]
+				loadChildren: () => import('./pages/diagnostic/diagnostic.module').then(m => m.DiagnosticModule)
 
 			},
 			{path: '**', redirectTo: '/notfound'}

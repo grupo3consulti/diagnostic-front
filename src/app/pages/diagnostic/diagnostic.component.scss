@@ -52,6 +52,15 @@ textarea {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.card-amarillo {
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px;
+  min-width: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .semaphore-container {
   padding: 2rem;
 }
@@ -79,3 +88,9 @@ textarea {
 .progress-bar-container {
   margin-top: 16px;
 }
+
+.prediagnostic-modal {
+  max-width: 500px;
+  height: auto;
+}
+

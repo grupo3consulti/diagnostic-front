@@ -1,1 +1,2 @@
-export {AuthTokenResDTO } from './AuthTokenResDTO';
+export {AuthTokenResDTO} from './AuthTokenResDTO';
+export {PrediagnosticResDTO, Medico, Institucion} from './PrediagnosticResDTO';
