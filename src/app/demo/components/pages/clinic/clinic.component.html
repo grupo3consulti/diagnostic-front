@@ -77,101 +77,65 @@
         </div>
     </p-dialog>
 
-    <p-dialog *ngIf="consulta" header="Detalla de la consulta" [(visible)]="modalResultado" [modal]="true"
+    <p-dialog *ngIf="consulta && resultado" header="Detalla de la consulta" [(visible)]="modalResultado" [modal]="true"
               [closable]="true" [style]="{width: '100vw', height: '100vh'}" [contentStyle]="{'overflow': 'auto'}">
         <div class="p-fluid">
             <div class="card p-fluid">
                 <p-divider layout="horizontal" align="center">
-                    <span class="p-tag">Tipo de examen</span>
+                    <span class="p-tag">Paciente</span>
                 </p-divider>
-                <div *ngFor="let examen of examen">
-                    <h4></h4>
-                    <div class="p-grid">
-                        <div class="p-col-12 p-md-6">
-                            <p><strong>Tipo:</strong>{{ examen.tipo_examen }}</p>
-                            <p><strong>Identificación:</strong> {{ examen.resultado?.identificacion }}</p>
-                            <p><strong>Fecha de Nacimiento:</strong> {{ examen.resultado?.fecha_nacimiento }}</p>
-                            <p><strong>Edad:</strong> {{ examen.resultado?.edad }}</p>
-                            <p><strong>Sexo:</strong> {{ examen.resultado?.sexo }}</p>
-                            <p><strong>Fecha de Ingreso:</strong> {{ examen.resultado?.fecha_ingreso }}</p>
-                            <p><strong>Fecha de Impresión:</strong> {{ examen.resultado?.fecha_impresion }}</p>
-                            <p><strong>Fecha de Resultado:</strong> {{ examen.resultado?.fecha_resultado }}</p>
-                            <p><strong>Sucursal:</strong> {{ examen.resultado?.sucursal }}</p>
-                        </div>
+                <div>
+                    <div>
+                        <strong>Nombre: </strong> {{ consultationUser.nombre }}
                     </div>
+                    <div>
+
+                        <strong>Email: </strong> {{ consultationUser.email }}
+                    </div>
+
+                </div>
+                <div>
                     <p-divider layout="horizontal" align="center">
-                        <span class="p-tag">Biometría</span>
+                        <span class="p-tag">PreDiagnostico</span>
+                    </p-divider>
+                    <div *ngFor="let prediagnostico of resultado">
+                        <p>{{ prediagnostico.prediagnostico }}</p>
+                    </div>
+
+                    <p-divider layout="horizontal" align="center">
+                        <span class="p-tag">Resultados Examenes</span>
                     </p-divider>
                     <div class="p-grid">
                         <div class="p-col-12 p-md-6">
-                            <ul>
-                                <li><strong>Recuento de Glóbulos
-                                    Rojos:</strong> {{ examen.resultado?.informe_resultados?.biometria?.recuento_globulos_rojos }}
-                                </li>
-                                <li>
-                                    <strong>Hemoglobina:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hemoglobina }}
-                                </li>
-                                <li>
-                                    <strong>Hematocrito:</strong> {{ examen.resultado?.informe_resultados?.biometria?.hematocrito }}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <p-divider layout="horizontal" align="center">
-                        <span class="p-tag">Serología Reactante Fase Aguda</span>
-                    </p-divider>
-                    <div class="p-grid">
-                        <div class="p-col-12 p-md-6">
-                            <ul>
-                                <li><strong>Tífico
-                                    O:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_o }}
-                                </li>
-                                <li><strong>Tífico
-                                    H:</strong> {{ examen.resultado?.informe_resultados?.serologia_reactante_fase_aguda?.reacciones_febriles_reaccion_widal?.tifico_h }}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <p-divider layout="horizontal" align="center">
-                        <span class="p-tag">Coprología</span>
-                    </p-divider>
-                    <div class="p-grid">
-                        <div class="p-col-12 p-md-6">
-                            <ul>
-                                <li>
-                                    <strong>Color:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.color }}
-                                </li>
-                                <li>
-                                    <strong>Consistencia:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.consistencia }}
-                                </li>
-                                <li>
-                                    <strong>pH:</strong> {{ examen.resultado?.informe_resultados?.coprologia?.citologia_moco_fecal?.ph }}
-                                </li>
-                            </ul>
-                        </div>
-                        <p-divider layout="horizontal" align="center">
-                            <span class="p-tag">Prediagnostico</span>
-                        </p-divider>
-                        <div class="p-col-12 p-md-6">
-                            <div *ngFor="let resultado of resultado">
-                                <p><strong>Detalle:</strong> {{ resultado?.prediagnostico }}</p>
+                            <div *ngFor="let resultadoExamenResultado of examen">
+                                <div *ngFor="let resultadoResultadoExamentResultadoResultados of resultadoExamenResultado.resultado.Resultados">
+                                    <p-divider layout="horizontal" align="center">
+                                        <span class="p-tag">{{ resultadoResultadoExamentResultadoResultados.Examen }}</span>
+                                    </p-divider>
+                                    <p>
+                                        <strong>
+                                            Resultado: </strong> {{ resultadoResultadoExamentResultadoResultados.Resultado }}
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            Unidades: </strong>{{ resultadoResultadoExamentResultadoResultados.Unidades }}
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            ValoresReferencia: </strong> {{ resultadoResultadoExamentResultadoResultados.ValoresReferencia }}
+                                    </p>
+
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="p-grid">
                         <p-divider layout="horizontal" align="center">
                             <span class="p-tag">Observaciones medicas</span>
                         </p-divider>
                         <div class="p-col-12 p-md-6"
                              *ngIf="consulta?.consulta.descripcion !== 'undefined' && consulta?.consulta.descripcion !== null && consulta?.consulta.descripcion !== ''; else noRevisado">
                             <p><strong>Descripción:</strong> {{ consulta?.consulta.descripcion }}</p>
-                            <p><strong>Validado por:</strong> {{ examen.resultado?.validado_por }}</p>
-                            <p><strong>Firmado Electrónicamente
-                                por:</strong> {{ examen.resultado?.firmado_electronicamente_por }}</p>
-                            <p><strong>Laboratorio Clínico:</strong> {{ examen.resultado?.laboratorio_clinico }}</p>
-                            <p><strong>RUC:</strong> {{ examen.resultado?.ruc }}</p>
-                            <p><strong>Director Técnico:</strong> {{ examen.resultado?.director_tecnico }}</p>
-                            <p><strong>Dirección:</strong> {{ examen.resultado?.direccion }}</p>
-                            <p><strong>Teléfonos:</strong> {{ examen.resultado?.telefonos }}</p>
-                            <p><strong>Orden No:</strong> {{ examen.resultado?.orden_no }}</p>
                         </div>
                         <ng-template #noRevisado>
                             <p>El médico aún no ha revisado el resultado de los exámenes.</p>
